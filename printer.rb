@@ -41,11 +41,11 @@ class SwaggerPrinter
       output = wrap_hash
       object.each_with_index do |(key, val), i|
         line = if val[:type] == :object
-                  print_hash(key, val)
+                 print_hash(key, val)
                elsif val[:type] == :array
-                  print_array(key, val)
+                 print_array(key, val)
                else
-                  print_line(key, val)
+                 print_line(key, val)
                end
         comma = i == object.keys.size - 1 ? '' : ','
         line += "#{comma}\n"

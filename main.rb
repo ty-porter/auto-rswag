@@ -8,7 +8,7 @@ require_relative 'printer.rb'
 
 def map_fields(object)
   if object.is_a? Array
-    object = { 
+    object = {
       type: :array,
       items: map_fields(object.first)
     }
@@ -21,25 +21,25 @@ def map_fields(object)
 end
 
 def map_object_keys(object)
-    object.keys.each do |key|
-      value = object.delete(key)
-      converted_key = convert(key)
-      if value.is_a? Hash
-        object[converted_key] = {
-          type: :object,
-          properties: value
-        }
-        map_fields(value)
-      elsif value.is_a? Array
-        object[converted_key] = {
-          type: :array,
-          items: [value.first]
-        }
-        map_fields(value)
-      else
-        object[converted_key] = parse_field(value)
-      end
+  object.keys.each do |key|
+    value = object.delete(key)
+    converted_key = convert(key)
+    if value.is_a? Hash
+      object[converted_key] = {
+        type: :object,
+        properties: value
+      }
+      map_fields(value)
+    elsif value.is_a? Array
+      object[converted_key] = {
+        type: :array,
+        items: [value.first]
+      }
+      map_fields(value)
+    else
+      object[converted_key] = parse_field(value)
     end
+  end
 end
 
 def convert(key)
