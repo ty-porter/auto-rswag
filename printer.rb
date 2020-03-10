@@ -7,36 +7,45 @@ class SwaggerPrinter
     def print_swagger(object)
       @indent ||= 2
       line = "$CHANGE_TITLE_HERE$: {\n"
-      line += object.is_a?(Hash) ? wrap_hash(object) : wrap_array(array)
       line += print_values(object)
-      @indent -= 2
-      line += ' ' * @indent + "}\n}"
+      line += end_wrap
       puts line
     end
 
-    def wrap_hash(_hash)
+    def wrap_hash
       line  = ' ' * @indent + "type: :object,\n"
       line += ' ' * @indent + "properties: {\n"
       @indent += 2
       line
     end
 
-    def wrap_array(_array)
+    def wrap_array
       line  = ' ' * @indent + "type: :array,\n"
       line += ' ' * @indent + "items: {\n"
       @indent += 2
       line
     end
 
+    def end_wrap
+      line = ''
+      while @indent > 2
+        @indent -= 2
+        line += ' ' * @indent + "}\n"
+      end
+      line + '}'
+    end
+
     def print_values(object)
-      output = ''
+      return wrap_array + print_values(object.first) if object.is_a?(Array)
+
+      output = wrap_hash
       object.each_with_index do |(key, val), i|
         line = if val[:type] == :object
-                 print_hash(key, val)
+                  print_hash(key, val)
                elsif val[:type] == :array
-                 print_array(key, val)
+                  print_array(key, val)
                else
-                 print_line(key, val)
+                  print_line(key, val)
                end
         comma = i == object.keys.size - 1 ? '' : ','
         line += "#{comma}\n"
@@ -47,9 +56,6 @@ class SwaggerPrinter
 
     def print_hash(key, val)
       line = ' ' * @indent + "#{key}: {\n"
-      @indent += 2
-      line += ' ' * @indent + "type: :object,\n"
-      line += ' ' * @indent + "properties: {\n"
       @indent += 2
       line += print_values(val[:properties])
       @indent -= 2
@@ -62,9 +68,7 @@ class SwaggerPrinter
     def print_array(key, val)
       line = ' ' * @indent + "#{key}: {\n"
       @indent += 2
-      line += ' ' * @indent + "type: :array,\n"
-      line += ' ' * @indent + "items: {\n"
-      @indent += 2
+      line += wrap_array
       line += print_values(val[:items].first)
       @indent -= 2
       line += ' ' * @indent + "}\n"
