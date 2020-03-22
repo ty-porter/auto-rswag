@@ -1,0 +1,12 @@
+AllCops:
+  Exclude:
+    - auto_rswag.gemspec
+
+Metrics/MethodLength:
+  Max: 25
+
+Metrics/AbcSize:
+  Max: 25
+
+Layout/LineLength:
+  Max: 99
