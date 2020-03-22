@@ -4,12 +4,11 @@
 # builds a prettified representation in rswag format.
 class SwaggerPrinter
   class << self
-    def print_swagger(object)
+    def print_swagger(object, test_title)
       @indent ||= 2
-      line = "$CHANGE_TITLE_HERE$: {\n"
+      line = "#{test_title}: {\n"
       line += print_values(object)
-      line += end_wrap
-      puts line
+      line + end_wrap
     end
 
     def wrap_hash
@@ -80,10 +79,17 @@ class SwaggerPrinter
     def print_line(key, val)
       line = ' ' * @indent + "#{key}: { "
       val.each_with_index do |(val_key, val_val), j|
+        next if val_key == :type && val.any? { |k, v| k == :example && v == nil }
         val_comma = j == val.keys.size - 1 ? '' : ','
-        line += "#{val_key}: #{prettify_value(val, val_key, val_val)}#{val_comma} "
+        line += "#{escape_key(val_key)}: #{prettify_value(val, val_key, val_val)}#{val_comma} "
       end
       line + '}'
+    end
+
+    def escape_key(key)
+      return key unless key.to_s.include?('-')
+      
+      "'#{key.to_s}'"
     end
 
     def prettify_value(type, key, val)

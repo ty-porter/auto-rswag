@@ -2,66 +2,20 @@
 
 require 'json'
 require_relative 'printer.rb'
+require_relative 'auto_rswag_helper.rb'
+require_relative 'doc_writer.rb'
 
-# This class walks through the payload object and
-# builds an object with details for printer class.
-class AutoRswag
-  def initialize(payload)
-    map_fields(payload)
-    print_values(payload)
-  end
+# This module hooks into the Rspec test to retrieve useful
+# metadata and submit it to AutoRswagHelper for conversion.
+module AutoRswag
+  def update_documentation
+    $title = metadata[:response][:schema]['$ref'].split('/').last
 
-  def map_fields(object)
-    if object.is_a? Array
-      object = {
-        type: :array,
-        items: map_fields(object.first)
-      }
-    elsif object.is_a?(Hash)
-      object = {
-        type: :object,
-        properties: map_object_keys(object)
-      }
+    after do
+      payload = AutoRswagHelper.convert_response(response)
+      AutoRswagHelper.map_fields(payload)
+      docs = SwaggerPrinter.print_swagger(payload, $title)
+      DocWriter.write_docs(docs, $title)
     end
-    object
-  end
-
-  def map_object_keys(object)
-    object.keys.each do |key|
-      value = object.delete(key)
-      converted_key = convert(key)
-      if value.is_a? Hash
-        object[converted_key] = {
-          type: :object,
-          properties: value
-        }
-        map_fields(value)
-      elsif value.is_a? Array
-        object[converted_key] = {
-          type: :array,
-          items: [value.first]
-        }
-        map_fields(value)
-      else
-        object[converted_key] = parse_field(value)
-      end
-    end
-  end
-
-  def convert(key)
-    key.to_sym
-  end
-
-  def parse_field(value)
-    type = value.nil? ? :string : value.class.to_s.downcase.to_sym
-    {
-      type: type,
-      example: value,
-      nullable: true
-    }
-  end
-
-  def print_values(payload)
-    SwaggerPrinter.print_swagger(payload)
   end
 end
