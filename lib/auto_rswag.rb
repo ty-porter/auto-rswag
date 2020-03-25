@@ -14,7 +14,7 @@ module AutoRswag
       payload = AutoRswagHelper.convert_response(response)
       AutoRswagHelper.map_fields(payload)
       docs = SwaggerPrinter.print_swagger(payload, title)
-      DocWriter.new(example.metadata).write_docs(docs, title)
+      DocWriter.new.write_docs(docs, title)
     end
   end
 end
