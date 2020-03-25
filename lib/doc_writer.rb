@@ -9,7 +9,6 @@ class DocWriter
   def write_docs(docs, fragment_title)
     old_documentation = File.read(docs_path)
     old_documentation_fragment = example_hash(fragment_title, old_documentation)
-    binding.pry
     return if old_documentation_fragment.nil?
 
     new_documentation_fragment = apply_original_indentation(docs, fragment_title)
