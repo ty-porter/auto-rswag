@@ -39,13 +39,13 @@ class SwaggerPrinter
 
       output = wrap_hash
       object.each_with_index do |(key, val), i|
-        line = if val[:type] == :object
-                 print_hash(key, val)
-               elsif val[:type] == :array
-                 print_array(key, val)
-               else
-                 print_line(key, val)
-               end
+        line =  if val[:type] == :object
+                  print_hash(key, val)
+                elsif val[:type] == :array
+                  print_array(key, val)
+                else
+                  print_line(key, val)
+                end
         comma = i == object.keys.size - 1 ? '' : ','
         line += "#{comma}\n"
         output += line
@@ -79,7 +79,8 @@ class SwaggerPrinter
     def print_line(key, val)
       line = ' ' * @indent + "#{key}: { "
       val.each_with_index do |(val_key, val_val), j|
-        next if val_key == :type && val.any? { |k, v| k == :example && v == nil }
+        next if val_key == :type && val.any? { |k, v| k == :example && v.nil? }
+
         val_comma = j == val.keys.size - 1 ? '' : ','
         line += "#{escape_key(val_key)}: #{prettify_value(val, val_key, val_val)}#{val_comma} "
       end
@@ -88,8 +89,8 @@ class SwaggerPrinter
 
     def escape_key(key)
       return key unless key.to_s.include?('-')
-      
-      "'#{key.to_s}'"
+
+      "'#{key}'"
     end
 
     def prettify_value(type, key, val)
