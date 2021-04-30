@@ -25,7 +25,7 @@ GEM
       coderay (~> 1.1)
       method_source (~> 1.0)
     rainbow (3.0.0)
-    rexml (3.2.4)
+    rexml (3.2.5)
     rspec (0.9.4)
     rubocop (0.80.1)
       jaro_winkler (~> 1.5.1)
